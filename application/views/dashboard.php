@@ -11,8 +11,32 @@
 <section class="content">
     <?php if($this->session->userdata('role') == 'pegawai') { ?>
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Capaian Kinerja Tahunan (Tahun <?=$active_year ? $active_year->year : '-'?>)</h3>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">
+                    Capaian Kinerja 
+                    <?php if(isset($period_type) && $period_type == 'monthly') { 
+                        $month_names = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                        echo 'Bulan ' . ($period_value ? $month_names[$period_value] : '') . ' ';
+                    } elseif(isset($period_type) && $period_type == 'quarterly') {
+                        echo 'Triwulan ' . ($period_value ? $period_value : '') . ' ';
+                    } else {
+                        echo 'Tahunan ';
+                    } ?>
+                    (Tahun <?=$active_year ? $active_year->year : '-'?>)
+                </h3>
+                <div class="card-tools">
+                    <form method="GET" action="<?=site_url('dashboard')?>" class="form-inline" id="filterForm">
+                        <select name="period_type" id="period_type" class="form-control form-control-sm mr-2" onchange="updatePeriodOptions()">
+                            <option value="yearly" <?=isset($period_type) && $period_type == 'yearly' ? 'selected' : ''?>>Tahunan</option>
+                            <option value="quarterly" <?=isset($period_type) && $period_type == 'quarterly' ? 'selected' : ''?>>Triwulan</option>
+                            <option value="monthly" <?=isset($period_type) && $period_type == 'monthly' ? 'selected' : ''?>>Bulanan</option>
+                        </select>
+                        <select name="period_value" id="period_value" class="form-control form-control-sm mr-2" <?=isset($period_type) && $period_type == 'yearly' ? 'disabled' : ''?>>
+                            <!-- Options will be dynamically populated -->
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter"></i> Filter</button>
+                    </form>
+                </div>
             </div>
             <div class="card-body">
                 <?php if($active_year) { ?>
@@ -22,8 +46,8 @@
                             <th rowspan="2" style="vertical-align: middle;">NO</th>
                             <th rowspan="2" style="vertical-align: middle;">KEGIATAN TUGAS JABATAN</th>
                             <th rowspan="2" style="vertical-align: middle;">AK</th>
-                            <th colspan="4">TARGET TAHUNAN</th>
-                            <th colspan="4">REALISASI TAHUNAN</th>
+                            <th colspan="4">TARGET <?=isset($period_type) && $period_type == 'monthly' ? 'BULANAN' : (isset($period_type) && $period_type == 'quarterly' ? 'TRIWULAN' : 'TAHUNAN')?></th>
+                            <th colspan="4">REALISASI <?=isset($period_type) && $period_type == 'monthly' ? 'BULANAN' : (isset($period_type) && $period_type == 'quarterly' ? 'TRIWULAN' : 'TAHUNAN')?></th>
                             <th rowspan="2" style="vertical-align: middle;">NILAI CAPAIAN</th>
                         </tr>
                         <tr class="text-center" style="background-color: #f4f6f9;">
@@ -44,6 +68,19 @@
                         $total_capaian = 0;
                         $count_activities = 0;
 
+                        // Calculate target divisor based on period type
+                        $target_divisor = 1;
+                        $time_label = '12 Bln';
+                        if(isset($period_type)) {
+                            if($period_type == 'monthly') {
+                                $target_divisor = 12;
+                                $time_label = '1 Bln';
+                            } elseif($period_type == 'quarterly') {
+                                $target_divisor = 4;
+                                $time_label = '3 Bln';
+                            }
+                        }
+
                         if($targets && $targets->num_rows() > 0) {
                             foreach($targets->result() as $target) {
                                 // Group by Indicator
@@ -52,31 +89,38 @@
                                     $current_indicator = $target->indicator_name;
                                 }
 
-                                // Get Annual Realization
-                                $annual_real_qty = $this->pkp_model->get_annual_realization($target->id);
-                                $annual_real_qty = $annual_real_qty ? $annual_real_qty : 0;
+                                // Get Realization based on filter
+                                $real_qty = $this->pkp_model->get_period_realization($target->id, isset($period_type) ? $period_type : 'yearly', isset($period_value) ? $period_value : null);
+                                $real_qty = $real_qty ? $real_qty : 0;
+
+                                // Calculate target for period
+                                $period_target = $target->target_qty / $target_divisor;
 
                                 // Calculate Capaian
                                 $capaian = 0;
-                                if($target->target_qty > 0) {
-                                    $capaian = ($annual_real_qty / $target->target_qty) * 100;
+                                if($period_target > 0) {
+                                    $capaian = ($real_qty / $period_target) * 100;
                                 }
-                                $total_capaian += $capaian;
+                                
+                                // Cap at 100%
+                                $capaian_display = $capaian > 100 ? 100 : $capaian;
+                                
+                                $total_capaian += $capaian_display;
                                 $count_activities++;
                                 ?>
                                 <tr>
                                     <td class="text-center"><?=$no++?></td>
                                     <td><?=$target->activity_name?></td>
                                     <td class="text-center"><?=$target->target_credit_score?></td>
-                                    <td class="text-center"><?=$target->target_qty?> <?=$target->target_unit?></td>
+                                    <td class="text-center"><?=number_format($period_target, 2)?> <?=$target->target_unit?></td>
                                     <td class="text-center"><?=$target->target_quality?></td>
-                                    <td class="text-center">12 Bln</td>
+                                    <td class="text-center"><?=$time_label?></td>
                                     <td class="text-center">-</td>
-                                    <td class="text-center"><?=$annual_real_qty?> <?=$target->target_unit?></td>
-                                    <td class="text-center"><?=number_format($capaian, 2)?></td>
-                                    <td class="text-center">12 Bln</td>
+                                    <td class="text-center"><?=$real_qty?> <?=$target->target_unit?></td>
+                                    <td class="text-center"><?=number_format($capaian_display, 2)?></td>
+                                    <td class="text-center"><?=$time_label?></td>
                                     <td class="text-center">-</td>
-                                    <td class="text-center"><?=number_format($capaian, 2)?></td>
+                                    <td class="text-center"><?=number_format($capaian_display, 2)?></td>
                                 </tr>
                                 <?php 
                             }
@@ -90,6 +134,39 @@
                         </tr>
                     </tfoot>
                 </table>
+                
+                <script>
+                function updatePeriodOptions() {
+                    var periodType = document.getElementById('period_type').value;
+                    var periodValue = document.getElementById('period_value');
+                    var currentValue = '<?=isset($period_value) ? $period_value : ''?>';
+                    
+                    periodValue.innerHTML = '';
+                    periodValue.disabled = false;
+                    
+                    if(periodType == 'yearly') {
+                        periodValue.disabled = true;
+                        periodValue.innerHTML = '<option value="">-</option>';
+                    } else if(periodType == 'quarterly') {
+                        for(var i = 1; i <= 4; i++) {
+                            var selected = (currentValue == i && '<?=isset($period_type) ? $period_type : ''?>' == 'quarterly') ? 'selected' : '';
+                            periodValue.innerHTML += '<option value="' + i + '" ' + selected + '>Triwulan ' + i + '</option>';
+                        }
+                    } else if(periodType == 'monthly') {
+                        var months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                        for(var i = 1; i <= 12; i++) {
+                            var selected = (currentValue == i && '<?=isset($period_type) ? $period_type : ''?>' == 'monthly') ? 'selected' : '';
+                            periodValue.innerHTML += '<option value="' + i + '" ' + selected + '>' + months[i-1] + '</option>';
+                        }
+                    }
+                }
+                
+                // Initialize on page load
+                document.addEventListener('DOMContentLoaded', function() {
+                    updatePeriodOptions();
+                });
+                </script>
+                
                 <?php } else { ?>
                     <div class="alert alert-warning">Belum ada Tahun Anggaran aktif.</div>
                 <?php } ?>

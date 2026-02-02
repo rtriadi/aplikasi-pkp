@@ -113,6 +113,9 @@ foreach($targets_data as $target) {
         $capaian = 0;
     }
     
+    // Cap at 100%
+    $capaian_display = $capaian > 100 ? 100 : $capaian;
+    
     $indicators[$ind_id]['activities'][] = [
         'name' => $target->activity_name,
         'target_qty' => $monthly_target, // Use calculated monthly target
@@ -121,10 +124,10 @@ foreach($targets_data as $target) {
         'real_qty' => $real_qty,
         'real_unit' => $target->target_unit,
         'real_quality' => $real_quality,
-        'capaian' => $capaian
+        'capaian' => $capaian_display
     ];
     
-    $indicators[$ind_id]['total_score'] += $capaian;
+    $indicators[$ind_id]['total_score'] += $capaian_display;
     $indicators[$ind_id]['count']++;
 }
 ?>

@@ -151,3 +151,13 @@ function bulanIndo($bulan)
 	}
 	return $bln;
 }
+
+function check_role($role)
+{
+	$ci = &get_instance();
+	$user_role = $ci->session->userdata('role');
+	if ($user_role != $role) {
+		$ci->session->set_flashdata('error', 'Anda tidak memiliki akses ke halaman tersebut');
+		redirect('dashboard');
+	}
+}

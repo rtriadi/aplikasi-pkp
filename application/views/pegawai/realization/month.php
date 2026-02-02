@@ -139,39 +139,50 @@
 </section>
 
 <script>
-    // Auto calculate quality
-    $('.real-qty').on('input', function() {
-        var id = $(this).data('id');
-        var targetQty = $(this).data('target-qty');
-        var targetQuality = $(this).data('target-quality');
-        var realQty = $(this).val();
-
-        if(targetQty > 0) {
-            var calculatedQuality = (realQty / targetQty) * targetQuality;
-            // Cap at 100? Or allow > 100? User didn't specify, but usually capped at 100 or 120.
-            // Let's just follow the formula for now.
-            $('.real-quality[data-id="'+id+'"]').val(Math.round(calculatedQuality));
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for jQuery to be available
+    function initRealization() {
+        if (typeof $ === 'undefined' || typeof jQuery === 'undefined') {
+            setTimeout(initRealization, 50);
+            return;
         }
-    });
+        
+        // Auto calculate quality
+        $('.real-qty').on('input', function() {
+            var id = $(this).data('id');
+            var targetQty = $(this).data('target-qty');
+            var targetQuality = $(this).data('target-quality');
+            var realQty = $(this).val();
 
-    $('.btn-save').click(function() {
-        var id = $(this).data('id');
-        var qty = $('.real-qty[data-id="'+id+'"]').val();
-        var quality = $('.real-quality[data-id="'+id+'"]').val();
-        var month = '<?=$month?>';
-
-        $.ajax({
-            url: '<?=site_url('pegawai/realization/save_realization')?>',
-            type: 'POST',
-            data: {
-                target_id: id,
-                month: month,
-                real_qty: qty,
-                real_quality: quality
-            },
-            success: function(response) {
-                toastr.success('Data berhasil disimpan');
+            if(targetQty > 0) {
+                var calculatedQuality = (realQty / targetQty) * targetQuality;
+                $('.real-quality[data-id="'+id+'"]').val(Math.round(calculatedQuality));
             }
         });
-    });
+
+        $('.btn-save').click(function() {
+            var id = $(this).data('id');
+            var qty = $('.real-qty[data-id="'+id+'"]').val();
+            var quality = $('.real-quality[data-id="'+id+'"]').val();
+            var month = '<?=$month?>';
+
+            $.ajax({
+                url: '<?=site_url('pegawai/realization/save_realization')?>',
+                type: 'POST',
+                data: {
+                    target_id: id,
+                    month: month,
+                    real_qty: qty,
+                    real_quality: quality
+                },
+                success: function(response) {
+                    toastr.success('Data berhasil disimpan');
+                }
+            });
+        });
+    }
+    
+    initRealization();
+});
 </script>
+

@@ -102,6 +102,9 @@
                 $capaian = 0;
             }
             
+            // Cap at 100%
+            $capaian = $capaian > 100 ? 100 : $capaian;
+            
             $indicators[$ind_id]['total_score'] += $capaian;
             $indicators[$ind_id]['count']++;
         }

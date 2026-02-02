@@ -53,6 +53,13 @@
             <p>Data Pegawai</p>
         </a>
     </li>
+
+    <li class="nav-item">
+        <a href="<?= site_url('admin/backup') ?>" class="nav-link <?= in_array($this->uri->segment(2), ['backup']) ? 'active' : '' ?>">
+            <i class="nav-icon fas fa-hdd"></i>
+            <p>Backup Database</p>
+        </a>
+    </li>
     <?php } ?>
 
     <?php if($this->fungsi->user_login()->role == 'pegawai') { ?>

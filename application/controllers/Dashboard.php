@@ -14,6 +14,11 @@ class Dashboard extends CI_Controller {
         if($this->session->userdata('role') == 'pegawai') {
             $user_id = $this->session->userdata('id_user');
             $data['user'] = $this->user_model->get($user_id)->row();
+            
+            // Get filter parameters
+            $data['period_type'] = $this->input->get('period_type') ? $this->input->get('period_type') : 'yearly';
+            $data['period_value'] = $this->input->get('period_value') ? $this->input->get('period_value') : null;
+            
             if($data['active_year']) {
                 $data['targets'] = $this->pkp_model->get_targets($user_id, $data['active_year']->id);
             } else {

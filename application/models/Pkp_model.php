@@ -184,4 +184,41 @@ class Pkp_model extends CI_Model {
         $this->db->group_by('pkp_targets.user_id');
         return $this->db->get()->num_rows();
     }
+
+    /**
+     * Get realization based on period filter
+     * @param int $target_id
+     * @param string $period_type - 'monthly', 'quarterly', 'yearly'
+     * @param int $period_value - for monthly: 1-12, for quarterly: 1-4, for yearly: ignored
+     * @return float
+     */
+    public function get_period_realization($target_id, $period_type = 'yearly', $period_value = null)
+    {
+        $this->db->select_sum('real_qty');
+        $this->db->where('target_id', $target_id);
+        
+        switch ($period_type) {
+            case 'monthly':
+                if ($period_value) {
+                    $this->db->where('month', $period_value);
+                }
+                break;
+            case 'quarterly':
+                if ($period_value) {
+                    // Q1: 1-3, Q2: 4-6, Q3: 7-9, Q4: 10-12
+                    $start_month = (($period_value - 1) * 3) + 1;
+                    $end_month = $period_value * 3;
+                    $this->db->where('month >=', $start_month);
+                    $this->db->where('month <=', $end_month);
+                }
+                break;
+            case 'yearly':
+            default:
+                // No filter - sum all months
+                break;
+        }
+        
+        $query = $this->db->get('pkp_monthly');
+        return $query->row()->real_qty ? $query->row()->real_qty : 0;
+    }
 }
