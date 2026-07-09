@@ -133,7 +133,7 @@
     <div class="float-right d-none d-sm-block">
         <b>Version</b> 2.0.0
     </div>
-    <strong>Copyright &copy; 2024 <a href="#">E-PKP - PTA Gorontalo</a>.</strong> All rights reserved.
+    <strong>developed by Rahmat Triadi, S.Kom.</strong>
   </footer>
 
   <!-- Control Sidebar -->

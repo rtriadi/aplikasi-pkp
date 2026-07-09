@@ -24,7 +24,7 @@
                     } ?>
                     (Tahun <?=$active_year ? $active_year->year : '-'?>)
                 </h3>
-                <div class="card-tools">
+                <div class="card-tools ml-auto">
                     <form method="GET" action="<?=site_url('dashboard')?>" class="form-inline" id="filterForm">
                         <select name="period_type" id="period_type" class="form-control form-control-sm mr-2" onchange="updatePeriodOptions()">
                             <option value="yearly" <?=isset($period_type) && $period_type == 'yearly' ? 'selected' : ''?>>Tahunan</option>

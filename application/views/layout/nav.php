@@ -79,6 +79,13 @@
             <p>Realisasi Bulanan</p>
         </a>
     </li>
+
+    <li class="nav-item">
+        <a href="<?= site_url('pegawai/wfh') ?>" class="nav-link <?= $this->uri->segment(2) == 'wfh' ? 'active' : '' ?>">
+            <i class="nav-icon fas fa-home"></i>
+            <p>Laporan WFH</p>
+        </a>
+    </li>
     <?php } ?>
 
     <li class="nav-header">PENGATURAN</li>
