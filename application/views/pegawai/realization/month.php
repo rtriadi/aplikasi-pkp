@@ -6,18 +6,74 @@
       </div>
       <div class="col-sm-6">
         <div class="float-sm-right">
-            <a href="<?=site_url('pegawai/report/print_preview/'.$month)?>" target="_blank" class="btn btn-default btn-flat">
+            <button type="button" class="btn btn-default btn-flat" data-toggle="modal" data-target="#modal-print-preview">
                 <i class="fas fa-print"></i> Cetak Pratinjau
-            </a>
-            <a href="<?=site_url('pegawai/report/rekap_preview/'.$month)?>" target="_blank" class="btn btn-warning btn-flat">
+            </button>
+            <button type="button" class="btn btn-warning btn-flat" data-toggle="modal" data-target="#modal-print-rekap">
                 <i class="fas fa-file-alt"></i> Cetak Rekapitulasi
-            </a>
+            </button>
             <a href="<?=site_url('pegawai/realization')?>" class="btn btn-secondary btn-flat">Kembali</a>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<!-- Modal Print Preview Date Selection -->
+<div class="modal fade" id="modal-print-preview">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Pilih Tanggal Cetak Pratinjau</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="<?=site_url('pegawai/report/print_preview/'.$month)?>" method="get" target="_blank">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Tanggal Cetak</label>
+                        <input type="date" name="date" class="form-control" value="<?=date('Y-m-d')?>" required>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="show_empty" name="show_empty" value="1">
+                        <label class="form-check-label" for="show_empty">Tampilkan Realisasi Kosong (0)</label>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-print"></i> Cetak</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Print Rekap Selection -->
+<div class="modal fade" id="modal-print-rekap">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Pilih Tanggal Cetak</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="<?=site_url('pegawai/report/rekap_preview/'.$month)?>" method="get" target="_blank">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Tanggal Cetak</label>
+                        <input type="date" name="date" class="form-control" value="<?=date('Y-m-d')?>" required>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-print"></i> Cetak</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <section class="content">
     <!-- Appraiser Form -->

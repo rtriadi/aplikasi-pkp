@@ -76,8 +76,8 @@ foreach($targets_data as $target) {
     $real_qty = isset($realization) ? $realization->real_qty : 0;
     $real_quality = isset($realization) ? $realization->real_quality : 0;
 
-    // Filter: Skip if realization is 0
-    if ($real_qty <= 0) {
+    // Filter: Skip if realization is 0 UNLESS show_empty is true
+    if ($real_qty <= 0 && (!isset($show_empty) || !$show_empty)) {
         continue;
     }
 
@@ -127,8 +127,14 @@ foreach($targets_data as $target) {
         'capaian' => $capaian_display
     ];
     
-    $indicators[$ind_id]['total_score'] += $capaian_display;
-    $indicators[$ind_id]['count']++;
+    // Only include in calculation if realization is not 0 (or if it's considered valid)
+    // Requirement: "tetap tampil kegiatan yang tidak ada realisasi / 0 namun tidak menjadi pembagi di REKAPITULASI"
+    // So if real_qty > 0, we count it. If real_qty <= 0, we show it but don't count it for score.
+    
+    if ($real_qty > 0) {
+        $indicators[$ind_id]['total_score'] += $capaian_display;
+        $indicators[$ind_id]['count']++;
+    }
 }
 ?>
 
@@ -215,8 +221,11 @@ foreach($targets_data as $target) {
         $total_final_score = 0;
         $count_indicators = 0;
         foreach($indicators as $ind_data) { 
-            $total_final_score += $ind_data['avg_score'];
-            $count_indicators++;
+            // Only count towards final score divisor if it has valid activities
+            if ($ind_data['count'] > 0) {
+                $total_final_score += $ind_data['avg_score'];
+                $count_indicators++;
+            }
         ?>
         <tr>
             <td class="text-center"><?=$no++?></td>

@@ -164,7 +164,7 @@
     <tr>
         <td class="no-border" width="60%"></td>
         <td class="no-border">
-            Gorontalo, <?=date('d F Y')?> <br> <!-- Should use indo date helper -->
+            Gorontalo, <?= tgl_indo(isset($print_date) && !empty($print_date) ? $print_date : date('Y-m-d')) ?> <br>
             <?=isset($signature) ? $signature->appraiser_position : 'Pejabat Penilai'?><br>
             <br><br><br><br>
             <?=isset($signature) ? $signature->appraiser_name : '.........................'?><br>
